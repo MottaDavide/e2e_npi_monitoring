@@ -26,6 +26,29 @@ path_query = Path(__file__).parents[2] / "query"
 path_data_charged =path_data / "charged"
 
 
+def create_weekly_charged_qty(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Create a weekly charged quantity DataFrame from the input DataFrame. The steps are:
+    0. Order the Dataframe by 'UPC' and 'UpdateYearWeekKey' in ascending order.
+    1. Group the data by 'UPC'
+    2. Differentiate the 'TotalChargedQuantity' by 1 to get weekly charged quantities.
+
+    Parameters:
+    - df (pd.DataFrame): Input DataFrame containing charged data.
+
+    Returns:
+    - pd.DataFrame: DataFrame with weekly charged quantities.
+    """
+
+    df = df.copy()
+    
+    df = df.sort_values(by=["UPC", "UpdateYearWeekKey"], ascending=True)
+
+    df["WeeklyChargedQuantity"] = df.groupby(by=["UPC"])["TotalChargedQuantity"].diff(1).fillna(0)
+
+    return df
+
+
 def load_n_filter_charged(
         server: str, 
         database: str,
@@ -87,6 +110,9 @@ def load_n_filter_charged(
     # Align YearWeek format
     df['UpdateYearWeekKey'] = np.where(df['ClusterKey'] == release_ly, df['UpdateYearWeekKey'] + 100, df['UpdateYearWeekKey'])
     df['UpdateYearWeekKey'] = df['UpdateYearWeekKey'].astype(int).astype(str).str.zfill(6)  # Ensure YearWeek is 6 digits
+
+    logger.info("Creating weekly charged quantity")
+    df = create_weekly_charged_qty(df)
    
     return df
 
