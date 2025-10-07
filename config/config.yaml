@@ -1,0 +1,9 @@
+release: '2025 N2'
+release_ly: '2024 N2'
+mail_sender: 'GruppoNPIDemandPlanning@luxottica.com'
+mail_recipients: 
+  - 'GruppoNPIDemandPlanning@luxottica.com' 
+
+npi_sql_server:
+  server: LOISCNPIDBP01
+  database: NPI
