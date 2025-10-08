@@ -54,6 +54,7 @@ def load_n_concat_sales(
                                     encoding="utf-8",
                                     decimal='.',
                                     dtype={
+                                        "Year": str,
                                         "UPC": str,
                                         "Datest WHS": str,
                                     })
@@ -74,12 +75,22 @@ def load_n_concat_sales(
     try:
         df_sales_past = load_data(path_data_sales_past,  file_name="sales_&_shipping_past.txt")
                                     
+        
         logger.info(f"Loaded sales_past with {len(df_sales_past)} rows from {path_data_sales_past / 'sales_&_shipping_past.txt'}")
     except FileNotFoundError as e:
         msg = (f"File 'sales_&_shipping_past.txt' not found in {path_data_sales_past}. "
                f"You have to download it from Business Object first.")
         logger.error(msg)
         raise FileNotFoundError(msg) from e
+    
+
+    logger.info("Aligning YearWeek")
+    # Align YearWeek format
+    df_sales_past['Year'] = df_sales_past['Year'].str.replace(".","").astype(int)
+    df_sales_past['Year'] = df_sales_past['Year'] + 1
+    df_sales_past['Year'] = df_sales_past['Year'].astype(int).astype(str).str.zfill(4)  # Ensure Year is 4 digits
+    
+
     
     df_sales = pd.concat([df_sales_current, df_sales_past], ignore_index=True)
     logger.info(f"Concatenated sales_current and sales_past data, total rows: {len(df_sales)}")
