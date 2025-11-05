@@ -60,11 +60,19 @@ def load_n_concat_stock(
                                     })
         return df_stock
 
+    def concat_data(path_data_stock_current: Path):
+        df_stock = pd.DataFrame()
+        for file in path_data_stock_current.glob("REPORT_NPI_Stock*.txt"):
+            df_temp = load_data(path_data_stock_current, file.name)
+            logger.info(f" Loaded {file.name} data with {len(df_temp)} rows from {path_data_stock_current}")
+            df_stock = pd.concat([df_stock, df_temp], ignore_index=True)
+        return df_stock
+
     # Load the stock data
     try:
-        df_stock_current = load_data(path_data_stock_current, file_name="stock_current.txt")
+        df_stock_current = concat_data(path_data_stock_current)
 
-        logger.info(f"Loaded stock_current data with {len(df_stock_current)} rows from {path_data_stock_current / 'stock_current.txt'}")
+        logger.info(f"Loaded stock_current data with {len(df_stock_current)} rows from {path_data_stock_current}")
     except FileNotFoundError as e:
         msg = (f"File 'stock_current.txt' not found in {path_data_stock_current}. "
                f"It may have already been processed and moved to the history folder. Othrwise, something went wrong during file creation. Refer to Gruppo NPI Demand Planning.")
@@ -73,9 +81,9 @@ def load_n_concat_stock(
     
 
     try:
-        df_stock_past = load_data(path_data_stock_past,  file_name="stock_past.txt")
+        df_stock_past = concat_data(path_data_stock_past)
                                     
-        logger.info(f"Loaded stock_past with {len(df_stock_past)} rows from {path_data_stock_past / 'stock_past.txt'}")
+        logger.info(f"Loaded stock_past with {len(df_stock_past)} rows from {path_data_stock_past}")
     except FileNotFoundError as e:
         msg = (f"File 'stock_past.txt' not found in {path_data_stock_past}. "
                f"You have to download it from Business Object first.")
@@ -100,8 +108,8 @@ def load_n_concat_stock(
     df_stock.to_csv(path_data_stock / "stocks.csv", index=False, sep=";")
     logger.info(f"Saved stock data to {path_data_stock / 'stocks.csv'}")
     
-    Path.unlink(path_data_stock_current / "stock_current.txt")
-    logger.info("Original file 'stock_current.txt' removed from 'input/current' folder.")
+    #Path.unlink(path_data_stock_current / "stock_current.txt")
+    #logger.info("Original file 'stock_current.txt' removed from 'input/current' folder.")
     return df_stock
 
 if __name__ == "__main__":
