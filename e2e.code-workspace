@@ -1,8 +1,24 @@
 {
-	"folders": [
-		{
-			"path": "."
-		}
-	],
-	"settings": {}
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        // 1. Assicura che VS Code conosca l'interprete
+        "python.defaultInterpreterPath": "C:/VirtualEnv/e2e_env/python.exe",
+
+        // 2. Istruisce l'estensione Python ad attivare Conda nel terminale
+        "python.terminal.activateEnvironment": true,
+        
+        // 3. Istruisce l'estensione Python quale ambiente attivare
+        // VS Code cerca di derivare questo dal defaultInterpreterPath, 
+        // ma specificarlo è più sicuro, soprattutto se è un prefix:
+        "python.terminal.activateEnvironmentCommands": [
+            "conda activate C:\\VirtualEnv\\e2e_env"
+        ]
+        
+        // 4. (Opzionale) Se si vuole forzare PowerShell come shell di default:
+        // "terminal.integrated.defaultProfile.windows": "PowerShell" 
+    }
 }

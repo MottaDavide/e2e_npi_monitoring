@@ -1,125 +1,51 @@
-# OTIF Data Pipeline
+# E2E Project 
 
-This Python project automates the processing and aggregation of OTIF (On Time In Full) data extracted weekly from an Access database, and appends it to a historical CSV (`otif.csv`).
+## How to run (first time for a new report)
 
-## 📁 Project Structure
+1) Open the file `config/config.yaml` and set:
+   - `release`: .This is the current release you want to monitor. Use the format 'YYYY NN'.
+   - `release_ly`: .This is the past release you want to use as "last year" reference. Use the format 'YYYY NN'.
+   - `npi_sql_server` (change only if you are sure): change the `server` and the `database` of the SQL Server for the "Apollo" data (charged data).
+
+2) Run the file `e2e_update.bat`. It should be already scheduled inside *Task Scheduler* within the server `10.200.112.107` (*please refer to Roleof or someone inside the Data Science Community if you cannot open the server*).
+
+## How to run (after first time)
+Run the file `e2e_update.bat`. Usually, once per week. It should be already scheduled inside *Task Scheduler* within the server `10.200.112.107` (*please refer to Roleof or someone inside the Data Science Community if you cannot open the server*).
+
+## Files
+### ⚙️ config.yaml
+The `config/config.yaml` is essential to run correctly all the scripts and it should be updated every time is need. For instnace, it has to be updated:
+- When you create a new report and you have to change the releases
+- When The emails from and to whom you want to send the email of the status of the scripts.
+- When the SQL Server of the Apollo system changes
+
+### 🏃‍♀️ e2e_update.bat
+The file `src/e2e_update.bat` runs each python script (once for each type of data) by exploiting the conda environment `C:\Users\mottad\AppData\Local\miniconda3\envs\e2e_env`. Notice that the environement is inside `mottad`. Hence if you are not me (lol) this file as well as all the python scripts couldn't run properly.
+
+
+
+
+## 📂 Directory Tree
 
 ```text
-E2E (WORKSPACE)
-│
-├── config/
-│   └── config.yaml              # Contains general settings like 'release'
-│
-├── core/
-│   └── config_loader.py         # Utility to load configuration from YAML
-│
-├── src/otif/
-│   ├── otif_append.py           # Main script to process and append OTIF data
-│   ├── otif_append.bat          # Optional batch file to trigger the script
-│
-├── utils/
-│   ├── constant.py              # Constants used across the project
-│   ├── logger.py                # Custom logger configuration
-│   └── utils.py                 # Generic utilities (if needed)
-│
-└── data/otif/                   # Not shown, but assumed structure
-    ├── actual/                  # Holds latest weekly extract
-    ├── history/                 # Stores timestamped backup files
-    └── otif.csv                 # The main aggregated OTIF dataset
-```
-## 🔍 Objective
-
-This pipeline:
-1. Loads the weekly OTIF data from a `.txt` export (coming from an MS Access query).
-2. Optionally filters the data by a `Release` value defined in `config.yaml`.
-3. Saves a timestamped backup in the `history/` folder.
-4. Cleans and standardizes the data schema.
-5. Appends only new rows to the central `otif.csv`.
-
-## 📥 Input Source
-
-The weekly OTIF data originates from an Access Database:
-
-`\luxapplp04\share\Gruppo_Distribution_Planning\00_Data_Bases\OTIF\Source\OTIF_Input - PRJ OTIF 311.accdb`
-
-Export automatically the query named:
-
-`00_OTIF_Reclass`
-
-as:
-
-`00_OTIF_Reclass.txt`
-
-and save it in:
-
-`data/otif/actual/`
-
-## ⚙️ How It Works
-
-### Step-by-Step Logic
-
-1. **Load Config:**
-   - Reads the `release` filter from `config.yaml`.
-
-2. **Load & Filter OTIF Data:**
-   - Loads `00_OTIF_Reclass.txt` from `actual/`.
-   - Applies filtering by `Release` if specified.
-   - Logs the data size and key events.
-
-3. **Backup:**
-   - Saves a timestamped copy in `history/`.
-
-4. **Clean Data:**
-   - Renames columns to standardized snake_case.
-   - Keeps only relevant fields for analysis.
-   - Create the 'otif_year', 'otif_month', 'otif_quarter','otif_week' fields by adding 1 week to the 'week' field.
-
-5. **Append Logic:**
-   - Loads existing `otif.csv` if available.
-   - Appends only new rows (avoids duplicates).
-   - Recreate the UPC column from data/master_data/master_data.xlsx file.
-   - Saves updated file.
-
-6. **Remove Original Input:**
-   - Deletes the processed `.txt` to avoid reprocessing.
-
-7. **Send an email:**
-   - Send and email to inform the user about the status of the pipeline.
-
-## ▶️ How to Run
-### 0. Install Miniconda and VS Code
-
-Skip this point if you already have Miniconda ora Anaconda and VS Code installed.
-
-Otherwise, follow the links
--  [Install Miniconda](https://www.anaconda.com/docs/getting-started/miniconda/install)
-
-- [Install VS Code](https://code.visualstudio.com/docs/setup/windows)
-### 1. Create the Conda Environment
-
-From the terminal (macOS) or Anaconda Prompt (Windows), run:
-
-```bash
-conda env create -f environment.yaml
-```
-
-This will create a new Conda environment named `e2e_env` with all required dependencies.
-
-### 2. Activate the Environment
-
-Activate the environment using:
-
-- **macOS/Linux**:
-  ```bash
-  conda activate e2e_env
-  ```
-
-- **Windows**:
-  ```cmd
-  conda activate e2e_env
-  ```
-
-### 4. Run the Script
-- Open VS Code
-- Open the script `otif-append.py`
-- Run Current File in interactive Window![Run Current File in interactive Window](image.png)
+script/
+├── config/               # Configuration management
+│   └── config.yaml       # Main configuration file (release, server, etc.)
+├── core/                 # Core components required for script initialization
+│   └── config_loader.py  # Module responsible for loading and validating config.yaml
+├── query/                # Directory containing SQL queries or data definition files
+├── src/                  # Source Code: Business logic divided by domain
+│   ├── backorder/        # Logic related to backordered items
+│   ├── charged/          # Logic related to charges/costs processing
+│   ├── otif/             # OTIF (On Time In Full) metrics calculation and management
+│   ├── sales/            # Sales data analysis and processing
+│   ├── stock/            # Inventory and stock management
+│   └── e2e_update.bat    # Batch script for Windows updates or process execution
+├── utils/                # Shared support libraries and helpers
+│   ├── constant.py       # Global project constants definitions like OS
+│   ├── logger.py         # Module for logging configuration and handling
+│   └── utils.py          # Generic reusable utility functions like "send_email"
+├── .gitignore            # List of files and folders excluded from Git versioning
+├── e2e.code-workspace    # VS Code workspace configuration settings
+├── environment.yaml      # Environment dependency file (e.g., for Conda)
+└── README.md             # General project documentation

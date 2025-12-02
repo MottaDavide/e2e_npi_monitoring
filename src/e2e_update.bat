@@ -3,23 +3,23 @@
 
 echo Charged script execution...
 set PYTHONPATH=\\luxapplp04\Share\Gruppo_Demand_Planning\02_NPI\12_Report\E2E NPI Monitoring Dashbaord\script
-"C:\Users\mottad\AppData\Local\miniconda3\envs\e2e_env\python.exe" -m src.charged.charged
+"C:\VirtualEnv\e2e_env\python.exe" -m src.charged.charged
 
 echo Backorder script execution...
 set PYTHONPATH=\\luxapplp04\Share\Gruppo_Demand_Planning\02_NPI\12_Report\E2E NPI Monitoring Dashbaord\script
-"C:\Users\mottad\AppData\Local\miniconda3\envs\e2e_env\python.exe" -m src.backorder.backorder
+"C:\VirtualEnv\e2e_env\python.exe" -m src.backorder.backorder
 
 echo Otif script execution...
 set PYTHONPATH=\\luxapplp04\Share\Gruppo_Demand_Planning\02_NPI\12_Report\E2E NPI Monitoring Dashbaord\script
-"C:\Users\mottad\AppData\Local\miniconda3\envs\e2e_env\python.exe" -m src.otif.otif_append
+"C:\VirtualEnv\e2e_env\python.exe" -m src.otif.otif_append
 
 echo Sales script execution...
 set PYTHONPATH=\\luxapplp04\Share\Gruppo_Demand_Planning\02_NPI\12_Report\E2E NPI Monitoring Dashbaord\script
-"C:\Users\mottad\AppData\Local\miniconda3\envs\e2e_env\python.exe" -m src.sales.sales
+"C:\VirtualEnv\e2e_env\python.exe" -m src.sales.sales
 
 echo Stock script execution...
 set PYTHONPATH=\\luxapplp04\Share\Gruppo_Demand_Planning\02_NPI\12_Report\E2E NPI Monitoring Dashbaord\script
-"C:\Users\mottad\AppData\Local\miniconda3\envs\e2e_env\python.exe" -m src.stock.stock
+"C:\VirtualEnv\e2e_env\python.exe" -m src.stock.stock
 
 
 

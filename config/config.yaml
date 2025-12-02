@@ -7,3 +7,5 @@ mail_recipients:
 npi_sql_server:
   server: LOISCNPIDBP01
   database: NPI
+
+
