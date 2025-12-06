@@ -5,6 +5,7 @@
 1. [How to Run](#how-to-run)
    - [First Time Setup](#how-to-run-first-time-for-a-new-report)
    - [Subsequent Runs](#how-to-run-after-first-time)
+   - [Installation and Setup Guide](#installation-and-setup-guide-vscode--miniconda)
 
 2. [Files](#files)
    - [⚙️ config.yaml](#️-configyaml)
@@ -35,6 +36,104 @@
 ## How to run (after first time)
 Run the file `e2e_update.bat`. Usually, once per week. It should be already scheduled inside *Task Scheduler* within the server `10.200.112.107` (*please refer to Roleof or someone inside the Data Science Community if you cannot open the server*).  Refer to [Accessibility](#accessibility) section whether you cannot run the file.
 
+## Installation and Setup Guide (VSCode & miniconda)
+You can run the scripts beside the presence of `e2e_update.bat`, i.e. you can update run the scripts in your local machine  instead of the virtual machine `10.200.112.107`. However, you have to know how to install python, miniconda and how to create a virtual environment. Below a guide.
+
+### Step 0: Install VS Code
+It's prefer to use VS Code installed. Please, to install VS Code follow [this guide](https://code.visualstudio.com/docs/setup/windows).
+
+
+### Step 1: Install Miniconda
+
+Miniconda is a lightweight package manager that helps manage Python environments and dependencies.
+
+1. Download Miniconda from the official website:
+   - Go to [https://docs.conda.io/projects/miniconda/en/latest/](https://docs.conda.io/projects/miniconda/en/latest/)
+   - Click on the installer for Windows (choose the 64-bit version if unsure)
+   - Save the file to your Downloads folder
+
+2. Install Miniconda:
+   - Open your Downloads folder and double-click the Miniconda installer (file name will look like `Miniconda3-latest-Windows-x86_64.exe`)
+   - Follow the installation wizard by clicking **Next** on each screen
+   - When asked "Add Miniconda3 to my PATH environment variable", make sure to **check the box** before clicking Install
+   - Wait for the installation to complete (this may take a few minutes)
+   - Click **Finish** when done
+
+3. Verify the installation:
+   - Open VS Code and open the terminal inside.
+   - Type: `conda --version` and press Enter
+   - You should see a version number displayed (e.g., "conda 23.5.2")
+   - If you see an error, close VS Code and reopen it, then try again
+   - If you still see an error, probably you have to grant the access to the "cmd" or powershell:
+      - Open Anaconda Prompt (search for "Anaconda Prompt" in Windows Start menu)
+      - Type: `conda init powershell` or `conda init cmd.exe` and press Enter
+      - Open VS Code and open the terminal inside.
+      - Type: `conda --version` and press Enter
+      -  You should see a version number displayed (e.g., "conda 23.5.2")
+
+### Step 2: Create the Virtual Environment
+
+The virtual environment is an isolated workspace where the project dependencies are installed. This ensures the project won't interfere with other Python programs on your computer.
+
+1. Open VS Code:
+   - Open VS Code and open the project folder (for a quickl start, just open the file `e2e.code-workspace`)
+
+2. Create the virtual environment from the `environment.yaml` file:
+   - Type the following command and press Enter:
+```
+     conda env create -f environment.yaml
+```
+   - Wait for the process to complete (this may take several minutes as it downloads and installs all required packages)
+   - You should see a message saying "To activate this environment, use" followed by a command
+
+4. Activate the virtual environment:
+   - Copy and paste the activation command shown in the previous step, or type:
+```
+     conda activate e2e_env
+```
+   - You should see `(e2e_env)` appear at the beginning of your Command Prompt line, indicating the environment is active
+
+### Step 3: Verify Everything is Working
+
+1. With the virtual environment activated, verify Python is installed correctly:
+   - Type: `python --version` and press Enter
+   - You should see a Python version number (e.g., "Python 3.11.5")
+
+2. Verify required packages are installed:
+   - Type: `pip list` or `conda list` and press Enter
+   - You should see a list of installed packages including pandas, sqlalchemy, and others
+
+### Troubleshooting
+
+**Problem: "conda is not recognized as an internal or external command"**
+- Solution: Miniconda was not added to your PATH. Reinstall Miniconda and make sure to check the box that says "Add Miniconda3 to my PATH environment variable"
+
+**Problem: "No module named 'pandas'" or similar error**
+- Solution: Make sure your virtual environment is activated. Check that `(e2e_env)` appears at the start of your Command Prompt line. If not, run `conda activate e2e_env`
+
+**Problem: The environment creation fails or takes too long**
+- Solution: Try creating the environment with a simpler command: `conda env create -f environment.yaml --no-deps` (this may require manual installation of some packages)
+- Alternatively, contact the Data Science Community for assistance
+
+### Running the Scripts
+
+Once your virtual environment is set up and activated, you can run the project scripts:
+
+1. Open the python script you want to run (for instance, `backorder.py`)
+2. Click the arrow just aside the "play" button on the up-right side of the window.
+3. From the dropdpwn menu, click *Run Current File In Intercative Window*.
+![alt text](image-3.png)
+4. Repeat the operations for all the script you want to run
+
+### Deactivating the Virtual Environment
+
+When you're done working with the project, you can deactivate the virtual environment by typing:
+```
+conda deactivate
+```
+
+You can reactivate it anytime by opening Command Prompt and typing `conda activate e2e_env`
+
 ## Files
 ### ⚙️ config.yaml
 The `config/config.yaml` is essential to run correctly all the scripts and it should be updated every time is need. For instnace, it has to be updated:
@@ -47,30 +146,23 @@ The file `src/e2e_update.bat` runs each python script (once for each type of dat
 
 ### 🔙​ backorder.py
 #### System Setup and Loading:
-
-- Retrieve project folders paths(`backorder\input`, `backorder\history`), loads operational settings from `config.yaml`, and activates a dedicated logging system.
-
-- Reads the raw backorder data from the `backorder\input\backorder.txt` file in the input folder, enforcing strict data types for analysis.
+- Retrieve project folders paths (`data\backorder`, `data\backorder\input`, `data\backorder\history`), loads operational settings from `config.yaml`, and activates a dedicated logging system.
+- Reads the raw backorder data from the `data\backorder\input\backorder.txt` file with strict data type enforcement, supporting UTF-8 encoding and custom decimal formatting for accurate numerical processing.
 
 #### Data Quality Correction (Temporal Consistency):
-
-- The script resolves a common data loading anomaly where the same `Year Week` is associated with two or more different Load Dates (`Pipeline - DtLoad`). For instane, this means that Boxi took the picture of week 1 in week 2 together with the picture of week 2.
-
-- The Correction: To maintain historical sequence, the data associated with the oldest load date in the conflicting week is reassigned to the previous `Year Week` (by subtracting 7 days). This adjustment prevents record duplication.
+- The script resolves a common data loading anomaly where the same `Year Week` is associated with two or more different Load Dates (`Pipeline - DtLoad`). This occurs when Boxi captures snapshots from multiple weeks within the same data extraction cycle (e.g., week 1 snapshot taken in week 2 alongside the week 2 snapshot).
+- Identifies all `Year Week` values with multiple load dates and applies targeted correction to records with the oldest load date by subtracting 7 days from the load date, recalculating the ISO calendar year and week to determine the adjusted `Year Week` value.
+- The Correction: To maintain historical sequence and prevent record duplication, only the rows associated with the oldest load date in a conflicting week are reassigned to the previous `Year Week`. This adjustment preserves data integrity while ensuring chronological alignment.
+- Converts final numeric columns to integer data types for consistency and storage optimization.
 
 #### Archiving and Maintenance:
-
-- A complete, corrected copy of the data is saved to the `backorder\history` folder with a unique timestamp for auditing.
-
-- The clean, corrected data is saved in a standard format (`\backorder\backorder.csv`), making it ready for use by other systems.
-
-- The original input file (`backorder\input\backorder.txt`) is deleted from the input folder upon successful processing.
+- A complete, corrected copy of the data is saved to the `data\backorder\history` folder with a unique timestamp for auditing and historical reference purposes.
+- The clean, corrected data is saved in standard CSV format (`data\backorder\backorder.csv`), making it ready for use by other systems and downstream analysis.
+- The original input file (`data\backorder\input\backorder.txt`) is deleted from the input folder upon successful processing to prevent re-processing and maintain folder organization.
 
 #### Notifications and Error Management:
-
 - An email is sent to the planning team upon successful completion of the data processing.
-
-- An immediate email alert is sent if a critical exception occurs (e.g., the input file is missing), detailing the error for prompt intervention.
+- An immediate email alert is sent if a critical exception occurs (e.g., the input file is missing, data format inconsistencies, or encoding errors), detailing the error for prompt intervention.
 
 
 ### 🔋 charged_v1.sql
